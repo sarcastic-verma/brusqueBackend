@@ -5,7 +5,7 @@ const HttpError = require('../models/http-error');
 const Story = require('../models/story');
 const User = require('../models/user');
 
-const getStory = async (req, res, next) => {
+const getAllStories = async (req, res, next) => {
     let stories;
     try {
         stories = await Story.find();
@@ -89,24 +89,25 @@ const createStory = async (req, res, next) => {
             new HttpError('Invalid inputs passed, please check your data.', 422)
         );
     }
-
-    const {title, intro, description, creator} = req.body;
+    const loggedInUserId = req.userData.userId;
+    const {title, intro, description} = req.body;
     const date = Date().toLocaleString();
     const createdStory = new Story({
         title,
         description,
         intro,
-        image: req.file.path,
-        creator,
+        image: "djhcasdjhc",
+        creator: loggedInUserId,
         createdOn: date,
+        likedBy: []
     });
 
     let user;
     try {
-        user = await User.findById(creator);
+        user = await User.findById(loggedInUserId);
     } catch (err) {
         const error = new HttpError(
-            'Creating story failed, please try again.',
+            err.message,
             500
         );
         return next(error);
@@ -120,13 +121,13 @@ const createStory = async (req, res, next) => {
     try {
         const sess = await mongoose.startSession();
         sess.startTransaction();
-        await createdStory.save({session: sess});
+        await createdStory.save();
         user.stories.push(createdStory);
-        await user.save({session: sess});
+        await user.save();
         await sess.commitTransaction();
     } catch (err) {
         const error = new HttpError(
-            'Creating story failed, please try again.',
+            err.message,
             500
         );
         return next(error);
@@ -213,10 +214,42 @@ const deleteStory = async (req, res, next) => {
 
     res.status(200).json({message: 'Deleted story.'});
 };
+const likeStory = async (req, res, next) => {
+    const storyId = req.params.sid;
+    const loggedInUserId = req.userData.userId;
+    let story;
+    try {
+        story = await Story.findById(storyId);
+    } catch (err) {
+        const error = new HttpError(
+            'Something went wrong, could not like story.',
+            500
+        );
+        return next(error);
+    }
+
+    try {
+        story.likedBy.push(loggedInUserId);
+        await story.save();
+    } catch (err) {
+        const error = new HttpError(
+            err.message,
+            500
+        );
+        return next(error);
+    }
+
+    res.status(200).json({
+        story: story.toObject(
+            {getters: true})
+    });
+
+};
 
 exports.getStoryById = getStoryById;
 exports.getStoriesByUserId = getStoriesByUserId;
 exports.createStory = createStory;
 exports.updateStory = updateStory;
 exports.deleteStory = deleteStory;
-exports.getStory = getStory;
+exports.getAllStories = getAllStories;
+exports.likeStory = likeStory;
