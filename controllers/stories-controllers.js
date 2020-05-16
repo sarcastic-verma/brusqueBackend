@@ -180,13 +180,13 @@ const updateStory = async (req, res, next) => {
 
 const deleteStory = async (req, res, next) => {
     const StoryId = req.params.sid;
-
+    const loggedInUserId = req.userData.userId;
     let story;
     try {
         story = await Story.findById(StoryId).populate('creator');
     } catch (err) {
         const error = new HttpError(
-            'Something went wrong, could not delete story.',
+            err.message,
             500
         );
         return next(error);
@@ -196,23 +196,27 @@ const deleteStory = async (req, res, next) => {
         const error = new HttpError('Could not find story for this id.', 404);
         return next(error);
     }
+    if(story.creator.id === loggedInUserId){
+        try {
+            const sess = await mongoose.startSession();
+            sess.startTransaction();
+            await story.remove();
+            story.creator.stories.pull(story);
+            await story.creator.save();
+            await sess.commitTransaction();
+        } catch (err) {
+            const error = new HttpError(
+                err.message,
+                500
+            );
+            return next(error);
+        }
 
-    try {
-        const sess = await mongoose.startSession();
-        sess.startTransaction();
-        await story.remove();
-        story.creator.stories.pull(story);
-        await story.creator.save();
-        await sess.commitTransaction();
-    } catch (err) {
-        const error = new HttpError(
-            'Something went wrong, could not delete story.',
-            500
-        );
-        return next(error);
+        res.status(200).json({message: 'Deleted story.'});
+    } else{
+        await res.json({message:"Not your story to delete"});
     }
 
-    res.status(200).json({message: 'Deleted story.'});
 };
 const likeStory = async (req, res, next) => {
     const storyId = req.params.sid;
