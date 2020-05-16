@@ -227,22 +227,28 @@ const likeStory = async (req, res, next) => {
         );
         return next(error);
     }
+    if (story.likedBy.length === 0 || !story.likedBy.includes(loggedInUserId)) {
+        try {
+            story.likedBy.push(loggedInUserId);
+            await story.save();
+        } catch (err) {
+            const error = new HttpError(
+                err.message,
+                500
+            );
+            return next(error);
+        }
 
-    try {
-        story.likedBy.push(loggedInUserId);
-        await story.save();
-    } catch (err) {
-        const error = new HttpError(
-            err.message,
-            500
+        res.status(200).json({
+            story: story.toObject(
+                {getters: true})
+        });
+    }else{
+        await res.json(
+            { message: "can't like again!!!" }
         );
-        return next(error);
     }
 
-    res.status(200).json({
-        story: story.toObject(
-            {getters: true})
-    });
 
 };
 

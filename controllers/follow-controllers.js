@@ -56,19 +56,26 @@ const follow = async (req, res, next) => {
             const error = new HttpError("Something went wrong, can't fetch following", 500);
             return next(error);
         }
-        try {
-            const sess = await mongoose.startSession();
-            sess.startTransaction();
-            userToFollow.followers.push(loggedInUserId);
-            loggedInUser.following.push(userId);
-            await userToFollow.save();
-            await loggedInUser.save();
-            await sess.commitTransaction();
-        } catch (err) {
-            return next(new HttpError("Following user failed", 500));
+        if(!userToFollow.followers.includes(loggedInUserId)){
+            try {
+                const sess = await mongoose.startSession();
+                sess.startTransaction();
+                userToFollow.followers.push(loggedInUserId);
+                loggedInUser.following.push(userId);
+                await userToFollow.save();
+                await loggedInUser.save();
+                await sess.commitTransaction();
+            } catch (err) {
+                return next(new HttpError("Following user failed", 500));
+            }
+            res.status(201).json(
+                {message: "User followed"});
+        } else{
+            await res.json(
+                { message:"Can't follow again" }
+            );
         }
-        res.status(201).json(
-            {message: "User followed"});
+
     } else {
         res.status(500).json({
             message: "Can't follow yourself"
