@@ -61,9 +61,9 @@ const follow = async (req, res, next) => {
             sess.startTransaction();
             userToFollow.followers.push(loggedInUserId);
             loggedInUser.following.push(userId);
-            userToFollow.save();
-            loggedInUser.save();
-            sess.commitTransaction();
+            await userToFollow.save();
+            await loggedInUser.save();
+            await sess.commitTransaction();
         } catch (err) {
             return next(new HttpError("Following user failed", 500));
         }
@@ -92,11 +92,11 @@ const unFollow = async (req, res, next) => {
     try {
         const sess = await mongoose.startSession();
         sess.startTransaction();
-        userToUnFollow.followers.remove(loggedInUserId);
-        loggedInUser.following.remove(userId);
-        userToUnFollow.save();
-        loggedInUser.save();
-        sess.commitTransaction();
+        userToUnFollow.followers.pull(loggedInUserId);
+        loggedInUser.following.pull(userId);
+        await userToUnFollow.save();
+        await loggedInUser.save();
+        await sess.commitTransaction();
     } catch (err) {
         return next(new HttpError("Unfollowing user failed", 500));
     }

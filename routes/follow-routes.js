@@ -9,4 +9,5 @@ router.get('/following/:uid', followController.getFollowing);
 router.use(checkAuth);
 router.post('/:uid', followController.follow);
 router.post('/unfollow/:uid', followController.unFollow);
+
 module.exports = router;

@@ -91,13 +91,14 @@ const createStory = async (req, res, next) => {
     }
 
     const {title, intro, description, creator} = req.body;
-
+    const date = Date().toLocaleString();
     const createdStory = new Story({
         title,
         description,
         intro,
         image: req.file.path,
-        creator
+        creator,
+        createdOn: date,
     });
 
     let user;
@@ -115,8 +116,6 @@ const createStory = async (req, res, next) => {
         const error = new HttpError('Could not find user for provided id.', 404);
         return next(error);
     }
-
-    console.log(user);
 
     try {
         const sess = await mongoose.startSession();
@@ -200,9 +199,9 @@ const deleteStory = async (req, res, next) => {
     try {
         const sess = await mongoose.startSession();
         sess.startTransaction();
-        await story.remove({session: sess});
+        await story.remove();
         story.creator.stories.pull(story);
-        await story.creator.save({session: sess});
+        await story.creator.save();
         await sess.commitTransaction();
     } catch (err) {
         const error = new HttpError(
