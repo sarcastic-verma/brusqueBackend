@@ -243,13 +243,44 @@ const likeStory = async (req, res, next) => {
             story: story.toObject(
                 {getters: true})
         });
-    }else{
+    } else {
         await res.json(
-            { message: "can't like again!!!" }
+            {message: "can't like again!!!"}
         );
     }
+};
 
-
+const unLikeStory = async (req, res, next) => {
+    const storyId = req.params.sid;
+    const loggedInUserId = req.userData.userId;
+    let story;
+    try {
+        story = await Story.findById(storyId);
+    } catch (err) {
+        const error = new HttpError(
+            'Something went wrong, could not unlike story.',
+            500
+        );
+        return next(error);
+    }
+    if (story.likedBy.includes(loggedInUserId)) {
+        try {
+            story.likedBy.pull(loggedInUserId);
+            await story.save();
+        } catch (err) {
+            const error = new HttpError(
+                err.message,
+                500
+            );
+            return next(error);
+        }
+        res.status(200).json({
+            story: story.toObject(
+                {getters: true})
+        });
+    } else {
+        await res.json({message: "Can't unlike if not liked"});
+    }
 };
 
 exports.getStoryById = getStoryById;
@@ -259,3 +290,4 @@ exports.updateStory = updateStory;
 exports.deleteStory = deleteStory;
 exports.getAllStories = getAllStories;
 exports.likeStory = likeStory;
+exports.unLikeStory = unLikeStory;

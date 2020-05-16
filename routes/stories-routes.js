@@ -44,4 +44,6 @@ router.delete('/:sid', storiesControllers.deleteStory);
 
 router.patch('/like/:sid', storiesControllers.likeStory);
 
+router.patch('/unlike/:sid',storiesControllers.unLikeStory);
+
 module.exports = router;

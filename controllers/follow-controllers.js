@@ -56,7 +56,7 @@ const follow = async (req, res, next) => {
             const error = new HttpError("Something went wrong, can't fetch following", 500);
             return next(error);
         }
-        if(!userToFollow.followers.includes(loggedInUserId)){
+        if (!userToFollow.followers.includes(loggedInUserId)) {
             try {
                 const sess = await mongoose.startSession();
                 sess.startTransaction();
@@ -70,9 +70,9 @@ const follow = async (req, res, next) => {
             }
             res.status(201).json(
                 {message: "User followed"});
-        } else{
+        } else {
             await res.json(
-                { message:"Can't follow again" }
+                {message: "Can't follow again"}
             );
         }
 
@@ -96,19 +96,25 @@ const unFollow = async (req, res, next) => {
         const error = new HttpError("Something went wrong, can't fetch following", 500);
         return next(error);
     }
-    try {
-        const sess = await mongoose.startSession();
-        sess.startTransaction();
-        userToUnFollow.followers.pull(loggedInUserId);
-        loggedInUser.following.pull(userId);
-        await userToUnFollow.save();
-        await loggedInUser.save();
-        await sess.commitTransaction();
-    } catch (err) {
-        return next(new HttpError("Unfollowing user failed", 500));
+
+    if (userToUnFollow.followers.includes(loggedInUserId)) {
+        try {
+            const sess = await mongoose.startSession();
+            sess.startTransaction();
+            userToUnFollow.followers.pull(loggedInUserId);
+            loggedInUser.following.pull(userId);
+            await userToUnFollow.save();
+            await loggedInUser.save();
+            await sess.commitTransaction();
+        } catch (err) {
+            return next(new HttpError("Unfollowing user failed", 500));
+        }
+        res.status(201).json(
+            {message: "User Unfollowed"});
+    } else {
+        await res.json({message: "Can't unfollow if not followed"});
     }
-    res.status(201).json(
-        {message: "User Unfollowed"});
+
 };
 exports.follow = follow;
 exports.unFollow = unFollow;
