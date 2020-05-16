@@ -77,6 +77,33 @@ const follow = async (req, res, next) => {
 
 };
 
+const unFollow = async (req, res, next) => {
+    const userId = req.params.uid;
+    const loggedInUserId = req.userData.userId;
+    const loggedInUser = await User.findById(loggedInUserId);
+
+    let userToUnFollow;
+    try {
+        userToUnFollow = await User.findById(userId).populate('following');
+    } catch (err) {
+        const error = new HttpError("Something went wrong, can't fetch following", 500);
+        return next(error);
+    }
+    try {
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        userToUnFollow.followers.remove(loggedInUserId);
+        loggedInUser.following.remove(userId);
+        userToUnFollow.save();
+        loggedInUser.save();
+        sess.commitTransaction();
+    } catch (err) {
+        return next(new HttpError("Unfollowing user failed", 500));
+    }
+    res.status(201).json(
+        {message: "User Unfollowed"});
+};
 exports.follow = follow;
+exports.unFollow = unFollow;
 exports.getFollowers = getFollowers;
 exports.getFollowing = getFollowing;
