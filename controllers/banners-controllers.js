@@ -25,16 +25,22 @@ const getAllBanners = async (req, res, next) => {
     });
 };
 const getBanner = async (req, res, next) => {
+    const bannerId = req.params.bid;
+    let banner;
+    try {
+        banner = await Banner.findById(bannerId);
+    } catch (err) {
+        const error = new HttpError(err.message, 404);
+        return next(error);
+    }
+    if (!banner) {
+        const error = new HttpError("No banner for this id!", 404);
+        return next(error);
+    }
+    await res.json({banner: banner});
+
 };
-const createBanner = async (req, res, next) => {
-};
-const updateBanner = async (req, res, next) => {
-};
-const deleteBanner = async (req, res, next) => {
-};
+
 
 exports.getAllBanners = getAllBanners;
 exports.getBanner = getBanner;
-exports.createBanner = createBanner;
-exports.updateBanner = updateBanner;
-exports.deleteBanner = deleteBanner;
