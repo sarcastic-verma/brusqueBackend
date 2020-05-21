@@ -52,7 +52,7 @@ app.use((error, req, res, next) => {
 
 mongoose
     .connect(
-        `mongodb://localhost:27017/brusqueDB`, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true}
+        `mongodb+srv://admin101:brusque@cluster0-hacwi.mongodb.net/brusqueDB`, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true}
     )
     .then(() => {
         app.listen(5000, () => {

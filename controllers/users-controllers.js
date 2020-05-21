@@ -54,7 +54,7 @@ const signup = async (req, res, next) => {
         existingUser = await User.findOne({email: email});
     } catch (err) {
         const error = new HttpError(
-            'Signing up failed, please try again later.',
+            err.message,
             500
         );
         return next(error);
@@ -82,7 +82,7 @@ const signup = async (req, res, next) => {
     const createdUser = new User({
         username,
         email,
-        image: "",
+        image: 'http://localhost:5000/' + req.file.path,
         password: hashedPassword,
         stories: [],
         joinedOn: date,
@@ -94,7 +94,7 @@ const signup = async (req, res, next) => {
         await createdUser.save();
     } catch (err) {
         const error = new HttpError(
-            'Signing up failed, please try again later.',
+            err.message,
             500
         );
         return next(error);
@@ -136,7 +136,7 @@ const login = async (req, res, next) => {
 
     if (!existingUser) {
         const error = new HttpError(
-            'Invalid credentials, could not log you in.',
+            'Invalid credentials, could not log you in...user',
             403
         );
         return next(error);
@@ -155,7 +155,7 @@ const login = async (req, res, next) => {
 
     if (!isValidPassword) {
         const error = new HttpError(
-            'Invalid credentials, could not log you in.',
+            'Invalid credentials, could not log you in...pass',
             403
         );
         return next(error);

@@ -96,7 +96,7 @@ const createStory = async (req, res, next) => {
         title,
         description,
         intro,
-        image: "djhcasdjhc",
+        image: 'http://localhost:5000/' + req.file.path,
         creator: loggedInUserId,
         createdOn: date,
         likedBy: []
@@ -107,7 +107,7 @@ const createStory = async (req, res, next) => {
         user = await User.findById(loggedInUserId);
     } catch (err) {
         const error = new HttpError(
-            err.message,
+            err.message + "okdlks",
             500
         );
         return next(error);
@@ -127,7 +127,7 @@ const createStory = async (req, res, next) => {
         await sess.commitTransaction();
     } catch (err) {
         const error = new HttpError(
-            err.message,
+            err.message + "lol",
             500
         );
         return next(error);
@@ -196,7 +196,7 @@ const deleteStory = async (req, res, next) => {
         const error = new HttpError('Could not find story for this id.', 404);
         return next(error);
     }
-    if(story.creator.id === loggedInUserId){
+    if (story.creator.id === loggedInUserId) {
         try {
             const sess = await mongoose.startSession();
             sess.startTransaction();
@@ -213,8 +213,8 @@ const deleteStory = async (req, res, next) => {
         }
 
         res.status(200).json({message: 'Deleted story.'});
-    } else{
-        await res.json({message:"Not your story to delete"});
+    } else {
+        await res.json({message: "Not your story to delete"});
     }
 
 };
