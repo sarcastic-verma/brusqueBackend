@@ -90,11 +90,12 @@ const createStory = async (req, res, next) => {
         );
     }
     const loggedInUserId = req.userData.userId;
-    const {title, intro, description} = req.body;
+    const {title, intro, description, isAnonymous} = req.body;
     const date = Date().toLocaleString();
     const createdStory = new Story({
         title,
         description,
+        isAnonymous,
         intro,
         image: 'http://localhost:5000/' + req.file.path,
         creator: loggedInUserId,
