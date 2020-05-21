@@ -30,12 +30,13 @@ router.post(
 
 router.patch(
     '/:sid',
+    fileUpload.single('image'),
     [
         check('title')
             .not()
             .isEmpty(),
-        check('intro').isLength({max: 20, min: 5}),
-        check('description').isLength({min: 20, max: 144})
+        check('intro').isLength({min: 5}),
+        check('description').isLength({max: 244})
     ],
     storiesControllers.updateStory
 );

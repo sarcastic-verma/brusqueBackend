@@ -80,9 +80,9 @@ const signup = async (req, res, next) => {
     }
     const date = Date().toLocaleString();
     let filePath;
-    if(req.file){
+    if (req.file) {
         filePath = req.file.path;
-    }else{
+    } else {
         filePath = 'uploads/images/DUser.jpeg'
     }
     const createdUser = new User({
@@ -142,7 +142,7 @@ const login = async (req, res, next) => {
 
     if (!existingUser) {
         const error = new HttpError(
-            'Invalid credentials, could not log you in...user',
+            'You are not registered!!!',
             403
         );
         return next(error);
@@ -161,7 +161,7 @@ const login = async (req, res, next) => {
 
     if (!isValidPassword) {
         const error = new HttpError(
-            'Invalid credentials, could not log you in...pass',
+            'Wrong Password!!',
             403
         );
         return next(error);
