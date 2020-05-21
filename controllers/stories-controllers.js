@@ -92,12 +92,19 @@ const createStory = async (req, res, next) => {
     const loggedInUserId = req.userData.userId;
     const {title, intro, description, isAnonymous} = req.body;
     const date = Date().toLocaleString();
+    let filePath;
+
+    if (req.file) {
+        filePath = req.file.path;
+    } else {
+        filePath = 'uploads/images/DStory.jpeg'
+    }
     const createdStory = new Story({
         title,
         description,
         isAnonymous,
         intro,
-        image: 'http://localhost:5000/' + req.file.path,
+        image: 'http://localhost:5000/' + filePath,
         creator: loggedInUserId,
         createdOn: date,
         likedBy: []

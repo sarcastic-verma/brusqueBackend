@@ -79,10 +79,16 @@ const signup = async (req, res, next) => {
         return next(error);
     }
     const date = Date().toLocaleString();
+    let filePath;
+    if(req.file){
+        filePath = req.file.path;
+    }else{
+        filePath = 'uploads/images/DUser.jpeg'
+    }
     const createdUser = new User({
         username,
         email,
-        image: 'http://localhost:5000/' + req.file.path,
+        image: 'http://localhost:5000/' + filePath,
         password: hashedPassword,
         stories: [],
         joinedOn: date,
