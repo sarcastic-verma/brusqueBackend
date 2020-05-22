@@ -80,11 +80,17 @@ const signup = async (req, res, next) => {
     }
     const date = Date().toLocaleString();
     let filePath;
-    if (req.file) {
-        filePath = req.file.path;
-    } else {
-        filePath = 'uploads/images/DUser.jpeg'
+    try {
+        if (req.file) {
+            filePath = req.file.path;
+        } else {
+            filePath = 'uploads/images/DUser.jpeg'
+        }
+    } catch (err) {
+        const error = new HttpError(err.message, err.code);
+        return next(error);
     }
+
     const createdUser = new User({
         username,
         email,
@@ -120,7 +126,7 @@ const signup = async (req, res, next) => {
         return next(error);
     }
 
-    res
+    await res
         .status(201)
         .json({userId: createdUser.id, email: createdUser.email, token: token});
 };
@@ -181,7 +187,7 @@ const login = async (req, res, next) => {
         return next(error);
     }
 
-    res.json({
+    await res.json({
         userId: existingUser.id,
         email: existingUser.email,
         token: token

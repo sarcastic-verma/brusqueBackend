@@ -46,8 +46,13 @@ const getFollowing = async (req, res, next) => {
 const follow = async (req, res, next) => {
     const userId = req.params.uid;
     const loggedInUserId = req.userData.userId;
-    const loggedInUser = await User.findById(loggedInUserId);
-
+    let loggedInUser;
+    try {
+        loggedInUser = await User.findById(loggedInUserId);
+    } catch (err) {
+        const error = new HttpError(err.message, 500);
+        return next(error);
+    }
     if (loggedInUserId !== userId) {
         let userToFollow;
         try {
@@ -66,7 +71,7 @@ const follow = async (req, res, next) => {
                 await loggedInUser.save();
                 await sess.commitTransaction();
             } catch (err) {
-                return next(new HttpError("Following user failed", 500));
+                return next(new HttpError(err.message, 500));
             }
             res.status(201).json(
                 {message: "User followed"});
