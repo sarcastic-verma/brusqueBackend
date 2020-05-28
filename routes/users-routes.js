@@ -27,4 +27,6 @@ router.post(
 
 router.post('/login', usersController.login);
 
+router.get('/search/:query', usersController.searchUsers);
+
 module.exports = router;

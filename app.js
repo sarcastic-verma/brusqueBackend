@@ -9,6 +9,7 @@ const storiesRoutes = require('./routes/stories-routes');
 const followRoutes = require('./routes/follow-routes');
 const usersRoutes = require('./routes/users-routes');
 const bannersRoutes = require('./routes/banners-routes');
+const categoryRoutes = require('./routes/category-routes');
 const HttpError = require('./models/http-error');
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/stories', storiesRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/follow', followRoutes);
 app.use('/api/banners', bannersRoutes);
+app.use('/api/category', categoryRoutes);
 
 app.use((req, res, next) => {
     throw new HttpError('Could not find this route.', 404);
@@ -52,11 +54,15 @@ app.use((error, req, res, next) => {
 
 mongoose
     .connect(
-        `mongodb+srv://admin101:brusque@cluster0-hacwi.mongodb.net/brusqueDB`, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true}
+        `mongodb+srv://admin101:abcdpart3@cluster0-hacwi.mongodb.net/brusqueDB`, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true
+        }
     )
     .then(() => {
-        app.listen(5000, () => {
-            console.log("Server Started on port 5000.");
+        app.listen(process.env.PORT || 5000, () => {
+            console.log("Server Started");
         });
     })
     .catch(err => {

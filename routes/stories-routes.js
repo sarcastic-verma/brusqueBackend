@@ -12,7 +12,7 @@ router.get('/', storiesControllers.getAllStories);
 router.get('/:sid', storiesControllers.getStoryById);
 
 router.get('/user/:uid', storiesControllers.getStoriesByUserId);
-
+router.get('/search/:query', storiesControllers.searchStories);
 router.use(checkAuth);
 
 router.post(
@@ -46,5 +46,6 @@ router.delete('/:sid', storiesControllers.deleteStory);
 router.patch('/like/:sid', storiesControllers.likeStory);
 
 router.patch('/unlike/:sid', storiesControllers.unLikeStory);
+
 
 module.exports = router;

@@ -5,6 +5,7 @@ const HttpError = require('../models/http-error');
 const Story = require('../models/story');
 const User = require('../models/user');
 
+
 const getAllStories = async (req, res, next) => {
     let stories;
     try {
@@ -295,6 +296,43 @@ const unLikeStory = async (req, res, next) => {
     }
 };
 
+//Find story by title, here $project tells which fields to return!!
+// db.stories.aggregate([{$search:{"text":{"query":"mongo","path":"title"}}},{$project:{"title":1}}])
+//to return all fields use
+//db.stories.aggregate([{$search:{"text":{"query":"mongo","path":"title"}}}])
+
+const searchStories = async (req, res, next) => {
+    const query = req.params.query;
+    let results;
+    try {
+        let agg = Story.aggregate([{
+            $search: {
+                "text": {
+                    "query": query, "path": ["title", "intro", "description"], "fuzzy": {
+                        "maxEdits": 2,
+                        "maxExpansions": 20,
+                    }
+                }
+            }
+        }, {
+            $project: {
+                "title": 1,
+            }
+        }]);
+        results = await agg.exec();
+    } catch (err) {
+        const error = new HttpError(err.message, 404);
+        return next(error);
+    }
+    if (results.length === 0) {
+        await res.json({results: "No results found!!"});
+    } else {
+        await res.json({results: results});
+    }
+
+};
+
+
 exports.getStoryById = getStoryById;
 exports.getStoriesByUserId = getStoriesByUserId;
 exports.createStory = createStory;
@@ -303,3 +341,6 @@ exports.deleteStory = deleteStory;
 exports.getAllStories = getAllStories;
 exports.likeStory = likeStory;
 exports.unLikeStory = unLikeStory;
+exports.searchStories = searchStories;
+
+

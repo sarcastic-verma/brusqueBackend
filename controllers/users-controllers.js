@@ -140,7 +140,7 @@ const login = async (req, res, next) => {
         existingUser = await User.findOne({email: email});
     } catch (err) {
         const error = new HttpError(
-            'Logging in failed, please try again later.',
+            err.message,
             500
         );
         return next(error);
@@ -194,7 +194,39 @@ const login = async (req, res, next) => {
     });
 };
 
+const searchUsers = async (req, res, next) => {
+    const query = req.params.query;
+    let results;
+    try {
+        let agg = User.aggregate([{
+            $search: {
+                "text": {
+                    "query": query, "path": "username", "fuzzy": {
+                        "maxEdits": 2,
+                        "maxExpansions": 10,
+                    }
+                }
+            }
+        }, {
+            $project: {
+                "username": 1,
+            }
+        }]);
+        results = await agg.exec();
+    } catch (err) {
+        const error = new HttpError(err.message, 404);
+        return next(error);
+    }
+    if (results.length === 0) {
+        await res.json({results: "No results found!!"});
+    }else{
+        await res.json({results: results});
+    }
+
+};
+
 exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;
 exports.getUserById = getUserById;
+exports.searchUsers = searchUsers;
