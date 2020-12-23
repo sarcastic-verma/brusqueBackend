@@ -3,6 +3,7 @@ const {check} = require('express-validator');
 
 const usersController = require('../controllers/users-controllers');
 const fileUpload = require('../middleware/file-upload');
+const checkAuth = require('../middleware/check-auth');
 
 const router = express.Router();
 
@@ -28,5 +29,6 @@ router.post(
 router.post('/login', usersController.login);
 
 router.get('/search/:query', usersController.searchUsers);
-
+router.use(checkAuth);
+router.patch('/edit/:uid', usersController.editUser);
 module.exports = router;

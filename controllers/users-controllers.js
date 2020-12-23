@@ -219,13 +219,29 @@ const searchUsers = async (req, res, next) => {
     }
     if (results.length === 0) {
         await res.json({results: "No results found!!"});
-    }else{
+    } else {
         await res.json({results: results});
     }
 
 };
+//todo: implement edit user
 
+const editUser = async (req, res, next) => {
+    const userId = req.params.uid;
+    let user;
+    try {
+        user = await User.findById(userId)
+    } catch (err) {
+        const error = new HttpError("Something went wrong can't get user.", 500);
+        return next(error);
+    }
+    if (!user) {
+        const error = new HttpError("Can't find user for provided id", 404);
+        return next(error);
+    }
+};
 exports.getUsers = getUsers;
+exports.editUser = editUser;
 exports.signup = signup;
 exports.login = login;
 exports.getUserById = getUserById;

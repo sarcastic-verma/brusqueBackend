@@ -12,7 +12,7 @@ const getAllStories = async (req, res, next) => {
         stories = await Story.find();
     } catch (err) {
         const error = new HttpError(
-            'Fetching stories failed, please try again later.',
+            err.message,
             500
         );
         return next(error);
